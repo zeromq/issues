@@ -1,1 +1,31 @@
-Run the server, then 'while ./stress; do; done'
+(some details in here are specific to the 3-0 testcase)
+
+Keep a 'while ./stress ; do ; done' running.
+
+then start ./server
+
+./stress:
+	uses XREQ and connects to "tcp://localhost:5555"
+
+	sends 20 multipart message of the form:
+		[
+		'####stress',
+		'####AAAAAAAA',
+		'####BBBBBBBB',
+		'####CCCCCCCC',
+		'####DDDDDDDD',
+		'####EEEEEEEE'
+		]
+	where '####' is: "%i.%i.", getpid(), i
+		where i is the number of the mp-message
+
+./server:
+	uses XREP and binds to "tcp://127.0.0.1:5555"
+
+	receives messages and checks the contents to
+	be what ./stress sends
+
+	if a violation is detected, it is explained
+	and some more messages are received and printed
+	for debugging purposes. after that assert(0)
+	is triggered.
