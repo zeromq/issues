@@ -1,3 +1,4 @@
+
 #include <zmq.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,14 +22,33 @@ int zsend(void *socket, const char *buffer, const size_t len, char more) {
 	assert(m_data);
 	memcpy(m_data, buffer, len);
 
-	if (zmq_send(socket, &m, more?ZMQ_SNDMORE:0)) {
-		fprintf(stderr, "failed to send. errno: %i\n", zmq_errno());
+	if (0 > zmq_send(socket, &m, more?ZMQ_SNDMORE:0)) {
+		int e = zmq_errno();
+		fprintf(stderr, "failed to send. errno: %i (%s)\n", e, zmq_strerror(e));
 		return 1;
 	}
 	assert(0 == zmq_msg_close(&m));
 	return 0;
 }
 
+/*
+ * send out a multi-part message of the form:
+ * [
+ * '####stress',
+ * '####AAAAAAAA',
+ * '####BBBBBBBB',
+ * '####CCCCCCCC',
+ * '####DDDDDDDD',
+ * '####EEEEEEEE'
+ * ]
+ *
+ * where #### is a prefix for this mp-message
+ * passed as argument (\0-terminated; \0 not sent)
+ *
+ * and because we are using a XREQ socket,
+ * there will be an identity message at the beginning.
+ *
+ */
 int stress(void *s, const char *prefix) {
 	char buff[32];
 	int plen;
@@ -45,33 +65,33 @@ int stress(void *s, const char *prefix) {
 		return 1;
 	}
 
-	memcpy(buff+plen, "STRESS A", 8);
+	memcpy(buff+plen, "AAAAAAAA", 8);
 	if (zsend(s, buff, plen+8, 1)) {
-		fprintf(stderr, "failed to send STRESS A\n");
+		fprintf(stderr, "failed to send AAAAAAAA\n");
 		return 1;
 	}
 
-	memcpy(buff+plen, "STRESS B", 8);
+	memcpy(buff+plen, "BBBBBBBB", 8);
 	if (zsend(s, buff, plen+8, 1)) {
-		fprintf(stderr, "failed to send STRESS B\n");
+		fprintf(stderr, "failed to send BBBBBBBB\n");
 		return 1;
 	}
 
-	memcpy(buff+plen, "STRESS C", 8);
+	memcpy(buff+plen, "CCCCCCCC", 8);
 	if (zsend(s, buff, plen+8, 1)) {
-		fprintf(stderr, "failed to send STRESS C\n");
+		fprintf(stderr, "failed to send CCCCCCCC\n");
 		return 1;
 	}
 
-	memcpy(buff+plen, "STRESS D", 8);
+	memcpy(buff+plen, "DDDDDDDD", 8);
 	if (zsend(s, buff, plen+8, 1)) {
-		fprintf(stderr, "failed to send STRESS D\n");
+		fprintf(stderr, "failed to send DDDDDDDD\n");
 		return 1;
 	}
 
-	memcpy(buff+plen, "STRESS E", 8);
+	memcpy(buff+plen, "EEEEEEEE", 8);
 	if (zsend(s, buff, plen+8, 0)) {
-		fprintf(stderr, "failed to send STRESS E\n");
+		fprintf(stderr, "failed to send EEEEEEEE\n");
 		return 1;
 	}
 
@@ -82,6 +102,11 @@ int stress(void *s, const char *prefix) {
 int main(int argc, char **argv)
 {
 	if (argc != 1) return 1;
+
+	// assert we have asserts
+	int assert_test = 0;
+	assert(assert_test = 1);
+	if (assert_test != 1) return 1;
 
 	void *context;
 	context = zmq_init(1);
@@ -96,6 +121,11 @@ int main(int argc, char **argv)
 
 	int pid = (int)getpid();
 	int i;
+	/*
+	 * send out a number of mp-messages
+	 * (as documented in the comment above stress())
+	 * all mp-messages have a different prefix.
+	 */
 	for (i=20; i--;) {
 		char id_prefix[21];
 		snprintf(id_prefix, 21, "%i.%i.", pid, i);
