@@ -1,0 +1,19 @@
+Publisher
+=========
+
+Test scenario: start sub, then start pub.
+
+
+#0  0x00007fa7eb5be0c0 in zmq::array_item_t::set_array_index (this=0xec475abd67aa89d8, index_=0) at array.hpp:50
+50                  array_index = index_;
+(gdb) bt
+#0  0x00007fa7eb5be0c0 in zmq::array_item_t::set_array_index (this=0xec475abd67aa89d8, index_=0) at array.hpp:50
+#1  0x00007fa7eb5c4bbf in zmq::array_t<zmq::writer_t>::swap (this=0x1525a58, index1_=0, index2_=1) at array.hpp:122
+#2  0x00007fa7eb5c4447 in zmq::dist_t::activated (this=0x1525a50, pipe_=0x1526200) at dist.cpp:103
+#3  0x00007fa7eb5d39d7 in zmq::writer_t::process_activate_writer (this=0x1526200, msgs_read_=0) at pipe.cpp:347
+#4  0x00007fa7eb5cd6a3 in zmq::object_t::process_command (this=0x1526200, cmd_=...) at object.cpp:67
+#5  0x00007fa7eb5e0d1b in zmq::socket_base_t::process_commands (this=0x15258f0, block_=false, throttle_=true) at socket_base.cpp:691
+#6  0x00007fa7eb5e03bb in zmq::socket_base_t::send (this=0x15258f0, msg_=0x7fff638e1ad0, flags_=2) at socket_base.cpp:474
+#7  0x00007fa7eb5ec110 in zmq_send (s_=0x15258f0, msg_=0x7fff638e1ad0, flags_=2) at zmq.cpp:375
+#8  0x0000000000400957 in main () at pub.c:18
+

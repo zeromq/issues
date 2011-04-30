@@ -1,0 +1,94 @@
+Publisher
+=========
+
+Test scenario: start sub, then start pub.
+
+Assertion failed: size >= 2 (zmq_init.cpp:120)
+#0  0x00007f772651eba5 in raise (sig=<value optimized out>) at ../nptl/sysdeps/unix/sysv/linux/raise.c:64
+#1  0x00007f77265226b0 in abort () at abort.c:92
+#2  0x00007f77271b1cfc in zmq::zmq_init_t::write (this=0x696c70, msg_=0x696e10) at zmq_init.cpp:120
+#3  0x00007f7727186790 in zmq::decoder_t::message_ready (this=0x696dc8) at decoder.cpp:139
+#4  0x00007f77271b06c5 in zmq::decoder_base_t<zmq::decoder_t>::process_buffer (this=0x696dc8, data_=0x6986a0 "\001~i", size_=2) at decoder.hpp:122
+#5  0x00007f77271b0003 in zmq::zmq_engine_t::in_event (this=0x696d90) at zmq_engine.cpp:127
+#6  0x00007f77271afe25 in zmq::zmq_engine_t::plug (this=0x696d90, io_thread_=0x6963b0, inout_=0x696d28) at zmq_engine.cpp:78
+#7  0x00007f77271b1f91 in zmq::zmq_init_t::process_plug (this=0x696c70) at zmq_init.cpp:178
+#8  0x00007f7727190a7f in zmq::object_t::process_command (this=0x696c70, cmd_=...) at object.cpp:75
+#9  0x00007f772718d385 in zmq::io_thread_t::in_event (this=0x6963b0) at io_thread.cpp:81
+#10 0x00007f7727189c3f in zmq::epoll_t::loop (this=0x6963f0) at epoll.cpp:161
+#11 0x00007f7727189d16 in zmq::epoll_t::worker_routine (arg_=0x6963f0) at epoll.cpp:174
+#12 0x00007f77271a6b9f in thread_routine (arg_=0x696460) at thread.cpp:73
+#13 0x00007f7726af8971 in start_thread (arg=<value optimized out>) at pthread_create.c:304
+#14 0x00007f77265d192d in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:112
+#15 0x0000000000000000 in ?? ()
+
+Notes: did not reproduce after rebuilding libzmq with --enable-debug.
+
+
+Publisher
+=========
+
+Test scenario: start pub, then start sub.
+
+Program terminated with signal 11, Segmentation fault.
+#0  0x00007f1313b02520 in zmq::array_item_t::set_array_index (this=0x6f6f6f6f6f6f6f87, index_=0) at array.hpp:50
+50              array_index = index_;
+(gdb) bt
+#0  0x00007f1313b02520 in zmq::array_item_t::set_array_index (this=0x6f6f6f6f6f6f6f87, index_=0) at array.hpp:50
+#1  0x00007f1313b0970b in zmq::array_t<zmq::writer_t>::swap (this=0xd99a50, index1_=0, index2_=1) at array.hpp:122
+#2  0x00007f1313b09198 in zmq::dist_t::activated (this=0xd99a48, pipe_=0xd9a220) at dist.cpp:97
+#3  0x00007f1313b187db in zmq::writer_t::process_activate_writer (this=0xd9a220, msgs_read_=0) at pipe.cpp:262
+#4  0x00007f1313b12a47 in zmq::object_t::process_command (this=0xd9a220, cmd_=...) at object.cpp:67
+#5  0x00007f1313b25c69 in zmq::socket_base_t::process_commands (this=0xd998f0, block_=false, throttle_=true) at socket_base.cpp:700
+#6  0x00007f1313b252fd in zmq::socket_base_t::send (this=0xd998f0, msg_=0x7fff68119d20, flags_=0) at socket_base.cpp:481
+#7  0x00007f1313b2fe43 in zmq_sendmsg (s_=0xd998f0, msg_=0x7fff68119d20, flags_=0) at zmq.cpp:266
+#8  0x00007f1313b2fb53 in zmq_send (s_=0xd998f0, buf_=0x7fff68119d70, len_=1000, flags_=0) at zmq.cpp:219
+#9  0x00000000004008d8 in main () at pub.c:25
+
+Notes: this and following error happen arbitrarily, with both publishers.
+
+
+Publisher
+=========
+
+Test scenario: start pub2, then start sub2.
+
+Program terminated with signal 11, Segmentation fault.
+#0  0x00007f262dbd2468 in zmq::writer_t::check_write (this=0x0,
+msg_=0x7fff811835d0) at pipe.cpp:190
+190         if (unlikely (!active))
+(gdb) bt
+#0  0x00007f262dbd2468 in zmq::writer_t::check_write (this=0x0, msg_=0x7fff811835d0) at pipe.cpp:190
+#1  0x00007f262dbd24d1 in zmq::writer_t::write (this=0x0, msg_=0x7fff811835d0) at pipe.cpp:203
+#2  0x00007f262dbc3478 in zmq::dist_t::write (this=0x119ea48, pipe_=0x0, msg_=0x7fff811835d0) at dist.cpp:160
+#3  0x00007f262dbc33ac in zmq::dist_t::distribute (this=0x119ea48, msg_=0x7fff811835d0, flags_=2) at dist.cpp:141
+#4  0x00007f262dbc3250 in zmq::dist_t::send (this=0x119ea48, msg_=0x7fff811835d0, flags_=2) at dist.cpp:113
+#5  0x00007f262dbe4308 in zmq::xpub_t::xsend (this=0x119e8f0, msg_=0x7fff811835d0, flags_=2) at xpub.cpp:57
+#6  0x00007f262dbdf357 in zmq::socket_base_t::send (this=0x119e8f0, msg_=0x7fff811835d0, flags_=2) at socket_base.cpp:490
+#7  0x00007f262dbe9e43 in zmq_sendmsg (s_=0x119e8f0, msg_=0x7fff811835d0, flags_=2) at zmq.cpp:266
+#8  0x0000000000400957 in main () at pub2.c:22
+
+Notes: this and following error happen arbitrarily, with both publishers.
+
+
+Subscriber
+==========
+
+Test scenario: any, subscriber always crashes.
+
+sub: sub.c:25: main: Assertion `rc == 0' failed.
+Program terminated with signal 11, Segmentation fault.
+#0  0x00007f4ac8fc4468 in zmq::writer_t::check_write (this=0x0, msg_=0x7fff50f7d980) at pipe.cpp:190
+190     if (unlikely (!active))
+(gdb) bt
+#0  0x00007f4ac8fc4468 in zmq::writer_t::check_write (this=0x0, msg_=0x7fff50f7d980) at pipe.cpp:190
+#1  0x00007f4ac8fc44d1 in zmq::writer_t::write (this=0x0, msg_=0x7fff50f7d980) at pipe.cpp:203
+#2  0x00007f4ac8fb5478 in zmq::dist_t::write (this=0x1f96a48, pipe_=0x0, msg_=0x7fff50f7d980) at dist.cpp:160
+#3  0x00007f4ac8fb53ac in zmq::dist_t::distribute (this=0x1f96a48, msg_=0x7fff50f7d980, flags_=2) at dist.cpp:141
+#4  0x00007f4ac8fb5250 in zmq::dist_t::send (this=0x1f96a48, msg_=0x7fff50f7d980, flags_=2) at dist.cpp:113
+#5  0x00007f4ac8fd6308 in zmq::xpub_t::xsend (this=0x1f968f0, msg_=0x7fff50f7d980, flags_=2) at xpub.cpp:57
+#6  0x00007f4ac8fd1357 in zmq::socket_base_t::send (this=0x1f968f0, msg_=0x7fff50f7d980, flags_=2) at socket_base.cpp:490
+#7  0x00007f4ac8fdbe43 in zmq_sendmsg (s_=0x1f968f0, msg_=0x7fff50f7d980, flags_=2) at zmq.cpp:266
+#8  0x00007f4ac8fdbb53 in zmq_send (s_=0x1f968f0, buf_=0x400a73, len_=5, flags_=2) at zmq.cpp:219
+#9  0x00000000004008a7 in main () at sub.c:14
+
+Notes: this does NOT happen when using sub2.c.
