@@ -53,7 +53,7 @@ int main (void)
 
     sin.sin_port = htons (PORT);
 
-    int rc = connect (handle, &sin, sizeof (sin));
+    int rc = connect (handle, (struct sockaddr *) &sin, sizeof (sin));
     assert (rc >= 0);
 
     int block_nbr;
