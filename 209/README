@@ -1,0 +1,4 @@
+See: https://github.com/zeromq/libzmq/issues/209
+
+This subdirectory holds the 'blast' tool that sends randomized data to local port 5560. To run this test, start any 0MQ service at port 5560, then run this tool. The goal is to be able to send a GB of random data (1M 1K messages) without 0MQ crashing.
+
