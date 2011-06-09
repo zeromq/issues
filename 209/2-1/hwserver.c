@@ -11,23 +11,25 @@ int main (void)
     void *responder = zmq_socket (context, ZMQ_REP);
     zmq_bind (responder, "tcp://*:5560");
 
+    int count = 0;
     while (1) {
         //  Wait for next request from client
         zmq_msg_t request;
         zmq_msg_init (&request);
-        zmq_recv (responder, &request, 0);
-        printf ("Received Hello\n");
-        zmq_msg_close (&request);
+        if (zmq_recv (responder, &request, 0) == 0) {
+            printf ("Received message %d\n", ++count);
+            zmq_msg_close (&request);
 
-        //  Do some 'work'
-        sleep (1);
-
-        //  Send reply back to client
-        zmq_msg_t reply;
-        zmq_msg_init_size (&reply, 5);
-        memcpy (zmq_msg_data (&reply), "World", 5);
-        zmq_send (responder, &reply, 0);
-        zmq_msg_close (&reply);
+            //  Send reply back to client
+            zmq_msg_t reply;
+            zmq_msg_init_size (&reply, 5);
+            memcpy (zmq_msg_data (&reply), "World", 5);
+            zmq_send (responder, &reply, 0);
+            zmq_msg_close (&reply);
+        }
+        else
+        if (errno != EFAULT)
+            fprintf (stderr, "Error: %s\n", zmq_strerror (errno));
     }
     //  We never get here but if we did, this would be how we end
     zmq_close (responder);

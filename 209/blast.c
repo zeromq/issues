@@ -64,14 +64,13 @@ int main (void)
         int byte_nbr;
         for (byte_nbr = 0; byte_nbr < BLOCKSIZE; byte_nbr++)
             block [byte_nbr] = randof (256);
-
         rc = write (handle, block, BLOCKSIZE);
-        if (rc != BLOCKSIZE) {
-            printf ("Test failed at count %d\n", block_nbr);
+        if (rc == -1) {
+            fprintf (stderr, "Test failed at count %d\n", block_nbr);
             break;
         }
     }
     if (block_nbr == BLOCKS)
-        printf ("Successful!\n");
+        fprintf (stderr, "Successful!\n");
     return 0;
 }
