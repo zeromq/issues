@@ -1,0 +1,24 @@
+To compile, run:
+ % gcc -lzmq testcase.c
+ % chmod +x a.out
+ % ./a.out
+
+On OSX & Linux, should print something similar to:
+
+Chuck-Remess-Mac-Pro:2-1 cremes$ ./a.out
+worker has started
+worker has started
+Sending tasks to workers...
+Successfully sent [330] messages
+EAGAIN received for [999670] messages
+
+
+On Windows, it should print something like:
+$ ./a.out
+worker has started
+worker has started
+Sending tasks to workers...
+Successfully sent [1000000] messages
+EAGAIN received for [0] messages
+
+
