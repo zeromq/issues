@@ -27,7 +27,9 @@ int main (void)
     }
     int64_t rcvmore;
     size_t type_size = sizeof (rcvmore);
-    zmq_getsockopt (socket, ZMQ_RCVMORE, &rcvmore, &type_size);
+    rc = zmq_getsockopt (pipeout, ZMQ_RCVMORE, &rcvmore, &type_size);
+    assert (rc == 0);
+
     printf ("Got first message part: size=%zd more=%d\n",
         zmq_msg_size (&msg), (int) rcvmore);
 

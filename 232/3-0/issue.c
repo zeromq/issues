@@ -27,9 +27,17 @@ int main (void)
     }
     int rcvmore;
     size_t type_size = sizeof (int);
-    zmq_getsockopt (socket, ZMQ_RCVMORE, &rcvmore, &type_size);
-    printf ("Got first message part: size=%zd more=%d\n",
-        zmq_msg_size (&msg), rcvmore);
+    rc = zmq_getsockopt (pipeout, ZMQ_RCVMORE, &rcvmore, &type_size);
+    if (rc)
+        puts (strerror (errno));
+    assert (rc == 0);
+
+    int rcvlabel;
+    zmq_getsockopt (pipeout, ZMQ_RCVLABEL, &rcvlabel, &type_size);
+    assert (rc == 0);
+
+    printf ("Got first message part: size=%zd more=%d label=%d\n",
+        zmq_msg_size (&msg), rcvmore, rcvlabel);
 
     return 0;
 }

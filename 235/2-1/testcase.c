@@ -60,11 +60,11 @@ int main (void)
 
     //  Socket to send messages on
     void *sender = zmq_socket (context, ZMQ_PUSH);
-    uint64_t hwm = 1;
+    uint64_t hwm = 0;
     zmq_setsockopt (sender, ZMQ_HWM, &hwm, sizeof (hwm));
     int linger = 0;
     zmq_setsockopt (sender, ZMQ_LINGER, &linger, sizeof (linger));
-    zmq_bind (sender, "tcp://127.0.0.1:5557");
+    zmq_bind (sender, "tcp://*:5557");
 
     pthread_t worker;
     pthread_create (&worker, NULL, worker_task_a, NULL);
@@ -72,7 +72,7 @@ int main (void)
 
     //  Wait for threads to connect, since otherwise the messages
     //  we send will be dropped
-    sleep (2);
+    sleep (1);
 
     printf ("Sending tasks to workers...\n");
 
@@ -84,7 +84,7 @@ int main (void)
     for(i = 0; i < 1000000; i++) {
       zmq_msg_t task;
       zmq_msg_init_data (&task, "Hello world", 11, NULL, NULL);
-      rc = zmq_send (sender, &task, ZMQ_NOBLOCK);
+      rc = zmq_send (sender, &task, 0/*ZMQ_NOBLOCK */);
       
       if (rc == 0) {
         successful++;
