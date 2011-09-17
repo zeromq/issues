@@ -8,8 +8,7 @@
 // chmod +x a.out
 // ./a.out
 //
-//#include <zmq.h>
-#include "include/zmq.h"
+#include <zmq.h>
 
 // several of these are probably unnecessary...
 #include <stdint.h>
