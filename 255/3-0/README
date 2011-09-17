@@ -1,0 +1,4 @@
+RCVLABEL parts do not mark the part as component of
+a multi-part message. RCVMORE should return true (1)
+but it currently returns false (0).
+
