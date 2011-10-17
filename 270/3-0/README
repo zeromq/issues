@@ -1,0 +1,9 @@
+A SUB socket should have its socket EVENTS set to 
+POLLIN when it has a message in queue. This works
+when the SUB socket *connects* and the PUB socket
+binds, but it FAILS when the SUB socket *binds* and
+the PUB socket connects.
+
+issue.c shows the failure.
+
+issue_works.c shows how it works with the connect/bind swapped
