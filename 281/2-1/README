@@ -1,0 +1,6 @@
+When creating many sockets, zmq hits an assertion indicating that
+a mutex is locked while it is being destroyed.
+
+zmq_test.c demonstrates the issue.
+
+For details, see https://zeromq.jira.com/browse/LIBZMQ-281
