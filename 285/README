@@ -1,0 +1,5 @@
+To compile the test case, clone libzmq and..
+
+gcc -I/libzmq/include -L/libzmq/src/.libs pair.c -o pair -lzmq && LD_LIBRARY_PATH=/libzmq/src/.libs ./pair
+
+For details, see https://zeromq.jira.com/browse/LIBZMQ-285
