@@ -1,0 +1,6 @@
+Run the test program. It should print "Poll timed out..." every second.
+
+Set the system clock back for using date --set "Tue Dec  6 08:01:51 CET 2010" or similar.
+
+Then ZMQ will hang in poll until the time has caught up to the point where it was when
+zmq_poll was called (+ the timeout of 1s). No output will be printed until then.
