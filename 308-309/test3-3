@@ -1,0 +1,4 @@
+#!/bin/sh -x
+
+./pub3 ipc://testcase3-3.ipc &
+./sub3 ipc://testcase3-3.ipc
