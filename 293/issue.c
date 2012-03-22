@@ -1,28 +1,8 @@
-/*
-    Copyright (c) 2007-2011 iMatix Corporation
-    Copyright (c) 2007-2011 Other contributors as noted in the AUTHORS file
-
-    This file is part of 0MQ.
-
-    0MQ is free software; you can redistribute it and/or modify it under
-    the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    0MQ is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include "czmq.h"
 
 int main (int argc, char *argv [])
 {
-    void *context = zmq_ctx_new ();
+    void *context = zmq_init (1);
     void *pusher = zmq_socket (context, ZMQ_PUSH);
 
     zmq_bind (pusher, "tcp://127.0.0.1:5858");
@@ -48,8 +28,8 @@ int main (int argc, char *argv [])
 
     //  Send a message just to ensure there's something to read
     zmq_msg_t msg;
-    zmq_msg_init  (&msg);
-    zmq_msg_send  (&msg, pusher, 0);
+    zmq_msg_init (&msg);
+    zmq_send (pusher, &msg, 0);
     zmq_msg_close (&msg);
 
     //  Read raw ZMTP frame from normal socket
@@ -66,7 +46,7 @@ int main (int argc, char *argv [])
     assert (buf [flags_off] == 0);
 
     zmq_close (pusher);
-    zmq_ctx_destroy (context);
+    zmq_term (context);
 
     return 0;
 }
