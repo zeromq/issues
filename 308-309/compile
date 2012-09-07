@@ -1,0 +1,13 @@
+#!/bin/sh -x
+
+# note: libzmq 2 installed into /usr, libzmq 3 installed into /usr/local
+
+CFLAGS="-Wall -O0 -ggdb"
+
+# compile against zmq2 
+gcc -include /usr/include/zmq.h $CFLAGS -o pub2 pub.c -lzmq
+gcc -include /usr/include/zmq.h $CFLAGS -o sub2 sub.c -lzmq
+
+# compile against zmq3
+gcc -include /usr/local/include/zmq.h $CFLAGS -o pub3 pub.c -L/usr/local/lib -lzmq
+gcc -include /usr/local/include/zmq.h $CFLAGS -o sub3 sub.c -L/usr/local/lib -lzmq

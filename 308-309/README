@@ -1,0 +1,22 @@
+This test case requires a V2 publisher and a V3 subscriber, or a V3
+publisher and a V2 subscriber.  The publisher connects and the
+subscriber binds.
+
+On my system, libzmq V2 is installed in /usr and libzmq V3 is installed
+in /usr/local. (The 'compile' script assumes these paths.)
+
+There are four test scripts ('test2-2', 'test2-3', 'test3-2', 'test3-3')
+that run the four possible combinations of (V2 publisher, V3 publisher)
+X (V2 subscriber, V3 subscriber).
+
+Here are the current results of all four combinations:
+
+    V2 publisher, V2 subscriber => success
+
+    V3 publisher, V3 subscriber => success
+
+    V2 publisher, V3 subscriber => V3 subscriber crashes with:
+        Assertion failed: options.recv_identity (socket_base.cpp:864)
+
+    V3 publisher, V2 subscriber => V3 publisher crashes with:
+        Assertion failed: size > 0 && (*data == 0 || *data == 1) (xpub.cpp:66)
