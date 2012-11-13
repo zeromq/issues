@@ -37,4 +37,3 @@ int main () {
     zctx_destroy (&context);
     return 0;
 }
-
