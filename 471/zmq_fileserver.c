@@ -2,55 +2,56 @@
 #define CHUNK_SIZE 1024
 #define PIPELINE 10
 
+static void
+free_chunk (void *data, void *arg)
+{
+  free (data);
+}
+
 int main (void)
 {
-  zctx_t *ctx = zctx_new ();
+    zctx_t *ctx = zctx_new ();
 
-  void *dealer = zsocket_new (ctx, ZMQ_DEALER);
-  zsocket_connect (dealer, "tcp://127.0.0.1:6000");
+    FILE *file = fopen ("testdata", "r");
+    assert (file);
 
-  // We'll allow up to N chunks in transit at once
-  size_t credit = PIPELINE;
+    void *router = zsocket_new (ctx, ZMQ_ROUTER);
+    zsocket_set_hwm (router, PIPELINE * 2);
+    zsocket_bind (router, "tcp://*:6000");
+    while (true) {
+        // First frame in each message is the sender identity
+        zframe_t *identity = zframe_recv (router);
+        if (!identity)
+            break; // Shutting down, quit
 
-  size_t total = 0;     // Total bytes received
-  size_t chunks = 0;    // Total chunks received
-  size_t offset = 0;    // Offset of next chunk request
-  size_t offset_expc = 0;
-  
-  while (true) {
-    while (credit) {
-      // Ask for next chunk
-      zstr_sendfm (dealer, "fetch");
-      zstr_sendfm (dealer, "%ld", offset);
-      zstr_sendf (dealer, "%ld", CHUNK_SIZE);
-      offset += CHUNK_SIZE;
-      credit--;
+        // Second frame is "fetch" command
+        char *command = zstr_recv (router);
+        assert (streq (command, "fetch"));
+        free (command);
+
+        // Third frame is chunk offset in file
+        char *offset_str = zstr_recv (router);
+        size_t offset = atoi (offset_str);
+        free (offset_str);
+
+        // Fourth frame is maximum chunk size
+        char *chunksz_str = zstr_recv (router);
+        size_t chunksz = atoi (chunksz_str);
+        free (chunksz_str);
+
+        // Read chunk of data from file
+        fseek (file, offset, SEEK_SET);
+        byte *data = malloc (chunksz);
+        assert (data);
+
+        // Send resulting chunk to client
+        size_t size = fread (data, 1, chunksz, file);
+        zframe_t *chunk = zframe_new_zero_copy (data, size, free_chunk, NULL);
+        zframe_send (&identity, router, ZFRAME_MORE);
+        zframe_send (&chunk, router, 0);
     }
+    fclose (file);
 
-//     char *offset_str = zstr_recv (dealer);
-//     size_t offset_recd = atoi (offset_str);
-//     if (offset_recd != offset_expc)
-//         printf ("Received offset=%td expected=%td\n",
-//                 offset_recd, offset_expc);
-//     assert (offset_recd == offset_expc);
-//     free (offset_str);
-//     offset_expc += CHUNK_SIZE;
-
-    zframe_t *chunk = zframe_recv (dealer);
-    if (!chunk)
-      break; // Shutting down, quit
-    
-    chunks++;
-    credit++;
-    
-    size_t size = zframe_size (chunk);
-    zframe_destroy (&chunk);
-    total += size;
-    if (size < CHUNK_SIZE)
-      break; // Last chunk received; exit
-  }
-  printf ("%zd chunks received, %zd bytes\n", chunks, total);
-  
-  zctx_destroy (&ctx);
-  return total == 102400? 0: -1;
+    zctx_destroy (&ctx);
+    return 0;
 }

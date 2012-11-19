@@ -26,16 +26,6 @@ int main (void)
       offset += CHUNK_SIZE;
       credit--;
     }
-
-//     char *offset_str = zstr_recv (dealer);
-//     size_t offset_recd = atoi (offset_str);
-//     if (offset_recd != offset_expc)
-//         printf ("Received offset=%td expected=%td\n",
-//                 offset_recd, offset_expc);
-//     assert (offset_recd == offset_expc);
-//     free (offset_str);
-//     offset_expc += CHUNK_SIZE;
-
     zframe_t *chunk = zframe_recv (dealer);
     if (!chunk)
       break; // Shutting down, quit
