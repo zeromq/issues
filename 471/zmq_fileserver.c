@@ -16,7 +16,8 @@ int main (void)
     assert (file);
 
     void *router = zsocket_new (ctx, ZMQ_ROUTER);
-    zsocket_set_hwm (router, PIPELINE * 2);
+    zsocket_set_hwm (router, 10);
+    zsocket_set_router_mandatory (router, 1);
     zsocket_bind (router, "tcp://*:6000");
     while (true) {
         // First frame in each message is the sender identity
@@ -47,8 +48,10 @@ int main (void)
         // Send resulting chunk to client
         size_t size = fread (data, 1, chunksz, file);
         zframe_t *chunk = zframe_new_zero_copy (data, size, free_chunk, NULL);
-        zframe_send (&identity, router, ZFRAME_MORE);
-        zframe_send (&chunk, router, 0);
+        int rc = zframe_send (&identity, router, ZFRAME_MORE);
+        assert (rc == 0);
+        rc = zframe_send (&chunk, router, 0);
+        assert (rc == 0);
     }
     fclose (file);
 
