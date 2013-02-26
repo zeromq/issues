@@ -1,0 +1,25 @@
+Test for checking zmq_getsockopt with option ZMQ_RCVMORE
+
+Test send 10 message, each contains 3 parts. 
+Receiver should receive these messages, bot zmq_getsockopt(ZMQ_RCVMORE) is returning 0 after second part.
+In effect we do not get the last part.
+
+Test writes to console some info, right now it looks like this:
+test_send_more running...
+Received: sender
+Received: receiv
+End of message, got 2 parts
+router_test_more: router_test_more.c:110: int main(): Assertion `parts == 3' failed
+
+Should look like: 
+test_send_more running...
+Received: sender
+Received: receiv
+Received: message 0
+End of message, got 3 parts
+Received: sender
+Received: receiv
+Received: message 1
+End of message, got 3 parts
+
+and go on....
