@@ -15,6 +15,8 @@ s_pusher (void *args, zctx_t *ctx, void *pipe)
         zmq_send (push, "A", 1, 0);
     zmq_send (push, "Z", 1, 0);
     zstr_send (pipe, "done");
+    //  Don't quit right away or we'll lose messages in flight
+    zclock_sleep (200);
 }
 
 void
@@ -22,7 +24,6 @@ s_puller (void *args, zctx_t *ctx, void *pipe)
 {
     void *pull = zsocket_new (ctx, ZMQ_PULL);
     zsocket_connect (pull, "tcp://127.0.0.1:%d", *(int *) args);
-
     while (true) {
         char message;
         zmq_recv (pull, &message, 1, 0);
