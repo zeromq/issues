@@ -1,0 +1,46 @@
+Use the included GNU make Makefile to build on Unix-like systems. strace or
+ltrace is required to trace the underlying calls to connect. Without some kind
+of trace tool, it will be difficult to see the problem.
+
+With all the tests below, the connect calls are traced and are timestamped with
+the time between calls. The ZAP request handler also prints the ZAP request and
+reply. ZMQ_RECONNECT_IVL is set to 200, ZMQ_RECONNECT_IVL_MAX is 5000, and
+ZMQ_SNDTIMEO is 30000. ZMQ_IMMEDIATE is also enabled.
+
+
+To build the test:
+
+  $ make
+
+
+To show the behavior when connect and authentication succeed, make the no-fail
+target:
+
+  $ make no-fail
+
+The no-fail test issues a single connect, authentication succeeds, the bounce
+test succeeds, and the process exits almost immediately.
+
+
+To show the behavior when connect fails, make the connect-fail target:
+
+  $ make connect-fail
+
+The connect-fail test issues a succession of connect calls to the wrong port,
+with the time between each call roughly doubling from the previous call,
+starting with the value of ZMQ_RECONNECT_IVL and plateauing at about
+ZMQ_RECONNECT_IVL_MAX. The process will assert and exit after about 30 seconds,
+when zmq_send() times out. This is the expected behavior.
+
+
+Finally, to show the behavior when connect succeeds but authentication fails,
+make the auth-fail:
+
+  $ make auth-fail
+
+As with the connect-fail test, the auth-fail test issues a series of connect
+calls, but the time between calls is roughly the value of ZMQ_RECONNECT_IVL,
+never increasing toward ZMQ_RECONNECT_IVL_MAX. Also, zmq_send succeeds almost
+immediately and is never allowed to time out due to an unsuccessful ZAP
+handshake (issue #882).
+
