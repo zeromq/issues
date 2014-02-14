@@ -1,0 +1,7 @@
+Compile libzmq with this configure options: configure --with-poller=select
+
+Then compile the test case normally:
+
+g++ -o issue issue.c -lzmq -lpthread
+
+The problem happens under Cygwin for n = 28, but not for n = 27.
