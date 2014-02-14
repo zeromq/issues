@@ -4,4 +4,5 @@ Then compile the test case normally:
 
 g++ -o issue issue.c -lzmq -lpthread
 
-The problem happens under Cygwin for n = 28, but not for n = 27.
+The problem happens under Cygwin for n = 28, but not for n = 27:
+the test hangs in the zmq_ctx_destroy() call.
