@@ -1,0 +1,5 @@
+This test shows issue with ZMQ_PAIR socket when client connects to server in a loop, sends message and closes socket.
+Result of execution: client hangs in zmq_send function after sending a few messages.
+
+Compilation command:
+gcc issue.c -lzmq -lpthread
