@@ -15,9 +15,8 @@
 
 int
 main() {
-    int                         major, minor, patch, ret, i, opt;
+    int                         major, minor, patch, ret;
     void                       *ctx, *sender, *receiver;
-    char                        buf[256];
 
     zmq_version(&major, &minor, &patch);
     printf("Current ØMQ version is %d.%d.%d\n", major, minor, patch);
@@ -50,7 +49,7 @@ main() {
 
     //  Tries to send 2-nd part... and possibly get Assertion failed: !more (lb.cpp:97)
     ret = zmq_send(sender, SECOND_PART, SECOND_PART_LEN, ZMQ_DONTWAIT);
-    assert(ret == SECOND_PART_LEN);
+    assert(ret == -1);
 
     zmq_close(sender);
     zmq_ctx_destroy(ctx);
