@@ -1,6 +1,6 @@
 This is the git repo for issue test cases
 
-Each issue has a subdirectory named 'nnn' where that is the issue number.
+Each issue has a subdirectory named 'nnn' or 'nnnn' where that is the issue number.
 
 Within that subdirectory, there should directories 2-1 and 3-0 for version-specific test cases.
 
